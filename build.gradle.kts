@@ -61,6 +61,9 @@ dependencies {
 
     // Spring security
     // implementation("org.springframework.boot:spring-boot-starter-security")
+
+    // dotenv-java dependency
+    implementation("io.github.cdimascio:dotenv-java:3.0.0")
 }
 
 tasks.withType<Test> {

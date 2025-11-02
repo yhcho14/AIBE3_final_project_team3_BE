@@ -1,12 +1,9 @@
 version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
-    container_name: mixchat-mysql
-    restart: unless-stopped
-    env_file:
-      - ./.env.dev.properties
+    container_name: mysql
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -16,8 +13,8 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./docker/mysql/init:/docker-entrypoint-initdb.d  # 초기화 SQL 스크립트
+      - ./docker/config/mysql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./docker/config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -26,15 +23,39 @@ services:
 
   redis:
     image: redis:7.2-alpine
-    container_name: mixchat-redis
-    restart: unless-stopped
-    env_file:
-      - ./.env.dev.properties
+    container_name: redis
+    restart: always
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     command: sh -c "redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}"
+    networks:
+      - mixchat-network
+
+  redis-init:
+    image: redis:7.2-alpine
+    depends_on:
+      - redis
+    entrypoint: >
+      sh -c "sleep 5 && cat /init.redis | redis-cli -h redis"
+    volumes:
+      - ./docker/config/redis/init.redis:/init.redis
+
+  mongo:
+    image: mongo:6.0
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./docker/config/mongo/schema.js:/docker-entrypoint-initdb.d/schema.js
+      - ./docker/config/mongo/init.js:/docker-entrypoint-initdb.d/init.js
     networks:
       - mixchat-network
 
@@ -62,6 +83,8 @@ volumes:
   redis_data:
     driver: local
   minio_data:
+    driver: local
+  mongo_data:
     driver: local
 
 networks:

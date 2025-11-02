@@ -7,11 +7,13 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import triplestar.mixchat.global.customException.ServiceException;
 import triplestar.mixchat.global.response.ApiResponse;
 
 @Slf4j
@@ -77,6 +79,19 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ServiceException.class)
+    public ResponseEntity<ApiResponse<Void>> handle(ServiceException e) {
+        commonExceptionLog(e);
+
+        return new ResponseEntity<>(
+                new ApiResponse<>(
+                        e.getStatusCode(),
+                        e.getMessage()
+                ),
+                HttpStatus.valueOf(e.getStatusCode())
+        );
+    }
+
     // TODO : 429 관련 예외 처리 추가
 
     @ExceptionHandler(Exception.class)
@@ -95,5 +110,4 @@ public class GlobalExceptionHandler {
                 INTERNAL_SERVER_ERROR
         );
     }
-
 }

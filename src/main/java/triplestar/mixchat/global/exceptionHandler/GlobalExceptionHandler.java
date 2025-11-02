@@ -1,10 +1,12 @@
 package triplestar.mixchat.global.exceptionHandler;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,13 +18,16 @@ import triplestar.mixchat.global.response.ApiResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private void commonLog(Exception e) {
-        log.error("{} : {}", e.getClass().getSimpleName(), e.getMessage(), e);
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
+
+    private void commonExceptionLog(Exception e) {
+        log.warn("[ExceptionHandler] {} : {}", e.getClass().getSimpleName(), e.getMessage(), e);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handle(EntityNotFoundException e) {
-        commonLog(e);
+        commonExceptionLog(e);
 
         return new ResponseEntity<>(
                 new ApiResponse<>(
@@ -35,7 +40,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> handle(IllegalArgumentException e) {
-        commonLog(e);
+        commonExceptionLog(e);
 
         return new ResponseEntity<>(
                 new ApiResponse<>(
@@ -48,7 +53,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handle(MethodArgumentNotValidException e) {
-        commonLog(e);
+        commonExceptionLog(e);
 
         return new ResponseEntity<>(
                 new ApiResponse<>(
@@ -60,8 +65,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-        commonLog(e);
+    public ResponseEntity<ApiResponse<Void>> handle(HttpMessageNotReadableException e) {
+        commonExceptionLog(e);
 
         return new ResponseEntity<>(
                 new ApiResponse<>(
@@ -71,4 +76,24 @@ public class GlobalExceptionHandler {
                 BAD_REQUEST
         );
     }
+
+    // TODO : 429 관련 예외 처리 추가
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Void>> handle(Exception e) throws Exception {
+        log.error("[ExceptionHandler] {} : {}", e.getClass().getSimpleName(), e.getMessage(), e);
+
+        if ("dev".equals(activeProfile)) {
+            throw e;
+        }
+
+        return new ResponseEntity<>(
+                new ApiResponse<>(
+                        INTERNAL_SERVER_ERROR.value(),
+                        "서버에서 알 수 없는 오류가 발생했습니다."
+                ),
+                INTERNAL_SERVER_ERROR
+        );
+    }
+
 }

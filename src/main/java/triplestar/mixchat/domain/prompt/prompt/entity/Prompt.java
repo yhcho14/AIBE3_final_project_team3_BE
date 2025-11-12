@@ -14,7 +14,7 @@ import triplestar.mixchat.domain.member.member.entity.Member;
 @Table(name = "prompts")
 public class Prompt extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = true)
     private Member member;
 
@@ -47,7 +47,7 @@ public class Prompt extends BaseEntity {
         this.type = PromptType.valueOf(promptType);
     }
 
-    // 멤버 할당 도메인 메소드
+    // 도메인 멤버 할당 메소드
     public void assignMember(Member member) {
         this.member = member;
     }

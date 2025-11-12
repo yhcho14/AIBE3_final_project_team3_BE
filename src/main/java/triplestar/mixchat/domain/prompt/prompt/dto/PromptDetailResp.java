@@ -35,8 +35,8 @@ public record PromptDetailResp(
     @Schema(description = "멤버 ID", example = "1")
     Long memberId
 ) {
-    public static PromptDetailResp of(Prompt prompt) {
-        return new PromptDetailResp(
+    public PromptDetailResp(Prompt prompt) {
+        this(
             prompt.getId(),
             prompt.getTitle(),
             prompt.getType().name(),

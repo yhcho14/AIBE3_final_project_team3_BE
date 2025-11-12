@@ -17,12 +17,11 @@ public record PromptListResp(
     @Schema(description = "프롬프트 타입", example = "CUSTOM")
     String promptType
 ) {
-    public static PromptListResp of(triplestar.mixchat.domain.prompt.prompt.entity.Prompt prompt) {
-        return new PromptListResp(
+    public PromptListResp(triplestar.mixchat.domain.prompt.prompt.entity.Prompt prompt) {
+        this(
             prompt.getId(),
             prompt.getTitle(),
             prompt.getType().name()
         );
     }
 }
-

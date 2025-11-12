@@ -39,6 +39,8 @@ class ApiV1PromptControllerTest {
     Member premiumMember;
     Member basicMember;
 
+    // TestMemberFactory 사용 시도했지만, 오류 미해결로 인해 임시로 사용
+    // Todo: @WithMockUser와 TestMemberFactory 병행 사용 시 SecurityContext 충돌 문제 해결
     @BeforeEach
     void setUp() {
         promptRepository.deleteAll();

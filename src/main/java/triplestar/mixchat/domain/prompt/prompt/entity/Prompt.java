@@ -1,6 +1,7 @@
 package triplestar.mixchat.domain.prompt.prompt.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import triplestar.mixchat.global.jpa.entity.BaseEntity;
@@ -8,7 +9,7 @@ import triplestar.mixchat.domain.prompt.prompt.constant.PromptType;
 import triplestar.mixchat.domain.member.member.entity.Member;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "prompts")
 public class Prompt extends BaseEntity {
@@ -29,12 +30,14 @@ public class Prompt extends BaseEntity {
     private String content;
 
     // 도메인 생성 메소드
+    private Prompt(String title, String content, PromptType type) {
+        this.title = title;
+        this.content = content;
+        this.type = type;
+    }
+
     public static Prompt create(String title, String content, String promptType) {
-        Prompt prompt = new Prompt();
-        prompt.title = title;
-        prompt.content = content;
-        prompt.type = PromptType.valueOf(promptType);
-        return prompt;
+        return new Prompt(title, content, PromptType.valueOf(promptType));
     }
 
     // 도메인 수정 메소드
@@ -42,5 +45,10 @@ public class Prompt extends BaseEntity {
         this.title = title;
         this.content = content;
         this.type = PromptType.valueOf(promptType);
+    }
+
+    // 멤버 할당 도메인 메소드
+    public void assignMember(Member member) {
+        this.member = member;
     }
 }

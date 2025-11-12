@@ -95,4 +95,8 @@ public class Member extends BaseEntity {
         this.blockedAt = LocalDateTime.now();
         this.blockReason = category.name();
     }
+
+    public void changeMembershipGrade(MembershipGrade grade) {
+        this.membershipGrade = grade;
+    }
 }

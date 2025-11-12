@@ -51,7 +51,7 @@ public class PromptService {
         Prompt prompt = Prompt.create(req.title(), req.content(), req.promptType());
         prompt.assignMember(member);
         Prompt saved = promptRepository.save(prompt);
-        return PromptDetailResp.of(saved);
+        return new PromptDetailResp(saved);
     }
 
     // 본인의 프롬프트만 수정 (PREMIUM 유저)
@@ -64,7 +64,7 @@ public class PromptService {
             throw new IllegalStateException();
         }
         prompt.modify(req.title(), req.content(), req.promptType());
-        return PromptDetailResp.of(prompt);
+        return new PromptDetailResp(prompt);
     }
 
     // 본인의 프롬프트만 삭제 (PREMIUM 유저)
@@ -95,7 +95,7 @@ public class PromptService {
                 .filter(p -> p.getType() == PromptType.PRE_SCRIPTED)
                 .collect(Collectors.toList());
         }
-        return prompts.stream().map(PromptListResp::of).collect(Collectors.toList());
+        return prompts.stream().map(PromptListResp::new).collect(Collectors.toList());
     }
 
     // 프롬프트 상세 조회 (PREMIUM 유저만, 본인 CUSTOM 프롬프트만)
@@ -109,6 +109,6 @@ public class PromptService {
         if (prompt.getType() != PromptType.CUSTOM || prompt.getMember() == null || !prompt.getMember().getId().equals(member.getId())) {
             throw new IllegalStateException();
         }
-        return PromptDetailResp.of(prompt);
+        return new PromptDetailResp(prompt);
     }
 }

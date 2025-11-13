@@ -15,7 +15,7 @@ import triplestar.mixchat.domain.member.member.entity.Member;
 public class Prompt extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = true)
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @Enumerated(EnumType.STRING)

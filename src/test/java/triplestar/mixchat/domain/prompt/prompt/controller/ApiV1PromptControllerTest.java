@@ -105,8 +105,7 @@ class ApiV1PromptControllerTest {
     @DisplayName("프리미엄 회원이 본인 프롬프트를 수정에 성공")
     void updatePrompt_success() throws Exception {
         setAuth(premiumMember);
-        Prompt prompt = promptRepository.save(Prompt.create("수정 프롬프트", "내용", PromptType.CUSTOM.name()));
-        prompt.assignMember(premiumMember);
+        Prompt prompt = promptRepository.save(Prompt.create(premiumMember, "수정 프롬프트", "내용", PromptType.CUSTOM.name()));
         prompt = promptRepository.save(prompt);
         PromptReq req = new PromptReq("수정된 프롬프트", "수정된 내용입니다.", PromptType.CUSTOM.name());
         ResultActions result = mockMvc.perform(put("/api/v1/prompt/update/" + prompt.getId())
@@ -120,8 +119,7 @@ class ApiV1PromptControllerTest {
     @DisplayName("프리미엄 회원이 타인 프롬프트 수정에 실패")
     void updatePrompt_fail_notOwner() throws Exception {
         setAuth(premiumMember);
-        Prompt prompt = promptRepository.save(Prompt.create("타인 프롬프트", "내용", PromptType.CUSTOM.name()));
-        prompt.assignMember(basicMember);
+        Prompt prompt = promptRepository.save(Prompt.create(premiumMember, "타인 프롬프트", "내용", PromptType.CUSTOM.name()));
         prompt = promptRepository.save(prompt);
         PromptReq req = new PromptReq("수정 시도", "내용", PromptType.CUSTOM.name());
         ResultActions result = mockMvc.perform(put("/api/v1/prompt/update/" + prompt.getId())
@@ -134,8 +132,7 @@ class ApiV1PromptControllerTest {
     @DisplayName("프리미엄 회원이 본인 프롬프트 삭제에 성공")
     void deletePrompt_success() throws Exception {
         setAuth(premiumMember);
-        Prompt prompt = promptRepository.save(Prompt.create("삭제 프롬프트", "내용", PromptType.CUSTOM.name()));
-        prompt.assignMember(premiumMember);
+        Prompt prompt = promptRepository.save(Prompt.create(premiumMember, "삭제 프롬프트", "내용", PromptType.CUSTOM.name()));
         prompt = promptRepository.save(prompt);
         ResultActions result = mockMvc.perform(delete("/api/v1/prompt/delete/" + prompt.getId()));
         result.andExpect(status().isNoContent());
@@ -145,8 +142,7 @@ class ApiV1PromptControllerTest {
     @DisplayName("프리미엄 회원이 타인 프롬프트 삭제에 실패")
     void deletePrompt_fail_notOwner() throws Exception {
         setAuth(premiumMember);
-        Prompt prompt = promptRepository.save(Prompt.create("타인 프롬프트", "내용", PromptType.CUSTOM.name()));
-        prompt.assignMember(basicMember);
+        Prompt prompt = promptRepository.save(Prompt.create(premiumMember, "타인 프롬프트", "내용", PromptType.CUSTOM.name()));
         prompt = promptRepository.save(prompt);
         ResultActions result = mockMvc.perform(delete("/api/v1/prompt/delete/" + prompt.getId()));
         result.andExpect(status().is4xxClientError());
@@ -156,9 +152,9 @@ class ApiV1PromptControllerTest {
     @DisplayName("베이직 회원은 PRE_SCRIPTED 프롬프트 목록만 조회")
     void listPrompt_basicUser() throws Exception {
         setAuth(basicMember);
-        promptRepository.save(Prompt.create("스크립트1", "내용1", PromptType.PRE_SCRIPTED.name()));
-        promptRepository.save(Prompt.create("스크립트2", "내용2", PromptType.PRE_SCRIPTED.name()));
-        promptRepository.save(Prompt.create("커스텀", "내용3", PromptType.CUSTOM.name()));
+        promptRepository.save(Prompt.create(basicMember, "스크립트1", "내용1", PromptType.PRE_SCRIPTED.name()));
+        promptRepository.save(Prompt.create(basicMember, "스크립트2", "내용2", PromptType.PRE_SCRIPTED.name()));
+        promptRepository.save(Prompt.create(basicMember, "커스텀", "내용3", PromptType.CUSTOM.name()));
         ResultActions result = mockMvc.perform(get("/api/v1/prompt"));
         result.andExpect(status().isOk())
               .andExpect(jsonPath("$[0].title").value("스크립트1"));
@@ -168,10 +164,9 @@ class ApiV1PromptControllerTest {
     @DisplayName("프리미엄 회원은 본인 커스텀 프롬프트까지 목록 조회")
     void listPrompt_premiumUser() throws Exception {
         setAuth(premiumMember);
-        Prompt pre1 = promptRepository.save(Prompt.create("스크립트1", "내용1", PromptType.PRE_SCRIPTED.name()));
-        Prompt pre2 = promptRepository.save(Prompt.create("스크립트2", "내용2", PromptType.PRE_SCRIPTED.name()));
-        Prompt custom = promptRepository.save(Prompt.create("커스텀", "내용3", PromptType.CUSTOM.name()));
-        custom.assignMember(premiumMember);
+        Prompt pre1 = promptRepository.save(Prompt.create(premiumMember, "스크립트1", "내용1", PromptType.PRE_SCRIPTED.name()));
+        Prompt pre2 = promptRepository.save(Prompt.create(premiumMember, "스크립트2", "내용2", PromptType.PRE_SCRIPTED.name()));
+        Prompt custom = promptRepository.save(Prompt.create(premiumMember, "커스텀", "내용3", PromptType.CUSTOM.name()));
         custom = promptRepository.save(custom); // 멤버 할당 후 저장
         ResultActions result = mockMvc.perform(get("/api/v1/prompt"));
         result.andExpect(status().isOk())
@@ -182,8 +177,7 @@ class ApiV1PromptControllerTest {
     @DisplayName("프리미엄 회원이 본인 커스텀 프롬프트 상세조회에 성공")
     void detailPrompt_success() throws Exception {
         setAuth(premiumMember);
-        Prompt prompt = promptRepository.save(Prompt.create("상세 프롬프트", "상세 내용", PromptType.CUSTOM.name()));
-        prompt.assignMember(premiumMember);
+        Prompt prompt = promptRepository.save(Prompt.create(premiumMember, "상세 프롬프트", "상세 내용", PromptType.CUSTOM.name()));
         prompt = promptRepository.save(prompt);
         ResultActions result = mockMvc.perform(get("/api/v1/prompt/" + prompt.getId()));
         result.andExpect(status().isOk())
@@ -194,8 +188,7 @@ class ApiV1PromptControllerTest {
     @DisplayName("프리미엄 회원이 타인 커스텀 프롬프트 상세조회에 실패")
     void detailPrompt_fail_notOwner() throws Exception {
         setAuth(premiumMember);
-        Prompt prompt = promptRepository.save(Prompt.create("타인 프롬프트", "내용", PromptType.CUSTOM.name()));
-        prompt.assignMember(basicMember);
+        Prompt prompt = promptRepository.save(Prompt.create(premiumMember, "타인 프롬프트", "내용", PromptType.CUSTOM.name()));
         prompt = promptRepository.save(prompt);
         ResultActions result = mockMvc.perform(get("/api/v1/prompt/" + prompt.getId()));
         result.andExpect(status().is4xxClientError());
@@ -205,8 +198,7 @@ class ApiV1PromptControllerTest {
     @DisplayName("베이직 회원은 커스텀 프롬프트 상세조회에 실패")
     void detailPrompt_fail_basicUser() throws Exception {
         setAuth(basicMember);
-        Prompt prompt = promptRepository.save(Prompt.create("상세 프롬프트", "상세 내용", PromptType.CUSTOM.name()));
-        prompt.assignMember(basicMember);
+        Prompt prompt = promptRepository.save(Prompt.create(basicMember, "상세 프롬프트", "상세 내용", PromptType.CUSTOM.name()));
         prompt = promptRepository.save(prompt);
         ResultActions result = mockMvc.perform(get("/api/v1/prompt/" + prompt.getId()));
         result.andExpect(status().is4xxClientError());

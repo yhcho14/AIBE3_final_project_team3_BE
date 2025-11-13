@@ -29,15 +29,16 @@ public class Prompt extends BaseEntity {
     @Column(name = "content", nullable = false)
     private String content;
 
-    // 도메인 생성 메소드
-    private Prompt(String title, String content, PromptType type) {
+    private Prompt(Member member, String title, String content, PromptType type) {
+        this.member = member;
         this.title = title;
         this.content = content;
         this.type = type;
     }
 
-    public static Prompt create(String title, String content, String promptType) {
-        return new Prompt(title, content, PromptType.valueOf(promptType));
+    // 도메인 생성 메소드
+    public static Prompt create(Member member, String title, String content, String promptType) {
+        return new Prompt(member, title, content, PromptType.valueOf(promptType));
     }
 
     // 도메인 수정 메소드
@@ -45,10 +46,5 @@ public class Prompt extends BaseEntity {
         this.title = title;
         this.content = content;
         this.type = PromptType.valueOf(promptType);
-    }
-
-    // 도메인 멤버 할당 메소드
-    public void assignMember(Member member) {
-        this.member = member;
     }
 }

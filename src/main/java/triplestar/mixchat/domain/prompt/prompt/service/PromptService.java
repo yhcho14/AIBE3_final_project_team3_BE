@@ -48,8 +48,7 @@ public class PromptService {
     public PromptDetailResp create(PromptReq req) {
         Member member = getCurrentMember();
         checkPremium(member);
-        Prompt prompt = Prompt.create(req.title(), req.content(), req.promptType());
-        prompt.assignMember(member);
+        Prompt prompt = Prompt.create(member, req.title(), req.content(), req.promptType());
         Prompt saved = promptRepository.save(prompt);
         return new PromptDetailResp(saved);
     }

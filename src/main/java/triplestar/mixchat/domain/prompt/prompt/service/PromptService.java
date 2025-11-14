@@ -80,11 +80,7 @@ public class PromptService {
         MembershipGrade grade = member.getMembershipGrade();
         List<Prompt> prompts;
         if (grade == MembershipGrade.PREMIUM) {
-            List<Prompt> preScripted = promptRepository.findByType(PromptType.PRE_SCRIPTED);
-            List<Prompt> custom = promptRepository.findByTypeAndMember_Id(PromptType.CUSTOM, member.getId());
-            prompts = new java.util.ArrayList<>();
-            prompts.addAll(preScripted);
-            prompts.addAll(custom);
+            prompts = promptRepository.findForPremium(PromptType.PRE_SCRIPTED, PromptType.CUSTOM, member.getId());
         } else {
             prompts = promptRepository.findByType(PromptType.PRE_SCRIPTED);
         }
